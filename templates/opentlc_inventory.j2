@@ -11,6 +11,7 @@ ansible_ssh_user=ec2-user
 ### OpenShift Basic Vars
 ###########################################################################
 deployment_type=openshift-enterprise
+openshift_deployment_type=openshift-enterprise
 openshift_disable_check="memory_availability"
 
 # Default node selectors
@@ -25,9 +26,9 @@ openshift_master_api_port=443
 openshift_master_console_port=443
 
 openshift_master_cluster_method=native
-openshift_master_cluster_hostname=loadbalancer1.5082.internal
-openshift_master_cluster_public_hostname=loadbalancer1.5082.example.opentlc.com
-openshift_master_default_subdomain=apps.5082.example.opentlc.com
+openshift_master_cluster_hostname=loadbalancer1.{{ ansible_local.opentlc.guid }}.internal
+openshift_master_cluster_public_hostname=loadbalancer1.{{ ansible_local.opentlc.guid }}.example.opentlc.com
+openshift_master_default_subdomain=apps.{{ ansible_local.opentlc.guid }}.example.opentlc.com
 #openshift_master_ca_certificate={'certfile': '/root/intermediate_ca.crt', 'keyfile': '/root/intermediate_ca.key'}
 openshift_master_overwrite_named_certificates=True
 
@@ -149,7 +150,7 @@ openshift_logging_storage_volume_name=logging
 openshift_logging_storage_volume_size=10Gi
 openshift_logging_storage_labels={'storage': 'logging'}
 
-# openshift_logging_kibana_hostname=kibana.apps.5082.example.opentlc.com
+# openshift_logging_kibana_hostname=kibana.apps.{{ ansible_local.opentlc.guid }}.example.opentlc.com
 openshift_logging_es_cluster_size=1
 
 openshift_logging_es_nodeselector={"env":"infra"}
@@ -208,38 +209,38 @@ nfs
 #glusterfs
 
 [lb]
-loadbalancer1.5082.internal
+loadbalancer1.{{ ansible_local.opentlc.guid }}.internal
 
 [masters]
-master1.5082.internal
-master2.5082.internal
-master3.5082.internal
+master1.{{ ansible_local.opentlc.guid }}.internal
+master2.{{ ansible_local.opentlc.guid }}.internal
+master3.{{ ansible_local.opentlc.guid }}.internal
 
 [etcd]
-master1.5082.internal
-master2.5082.internal
-master3.5082.internal
+master1.{{ ansible_local.opentlc.guid }}.internal
+master2.{{ ansible_local.opentlc.guid }}.internal
+master3.{{ ansible_local.opentlc.guid }}.internal
 
 [nodes]
 ## These are the masters
-master1.5082.internal openshift_hostname=master1.5082.internal openshift_node_labels="{'env':'master', 'cluster': '5082'}"
-master2.5082.internal openshift_hostname=master2.5082.internal openshift_node_labels="{'env':'master', 'cluster': '5082'}"
-master3.5082.internal openshift_hostname=master3.5082.internal openshift_node_labels="{'env':'master', 'cluster': '5082'}"
+master1.{{ ansible_local.opentlc.guid }}.internal openshift_hostname=master1.{{ ansible_local.opentlc.guid }}.internal openshift_node_labels="{'env':'master', 'cluster': '{{ ansible_local.opentlc.guid }}'}"
+master2.{{ ansible_local.opentlc.guid }}.internal openshift_hostname=master2.{{ ansible_local.opentlc.guid }}.internal openshift_node_labels="{'env':'master', 'cluster': '{{ ansible_local.opentlc.guid }}'}"
+master3.{{ ansible_local.opentlc.guid }}.internal openshift_hostname=master3.{{ ansible_local.opentlc.guid }}.internal openshift_node_labels="{'env':'master', 'cluster': '{{ ansible_local.opentlc.guid }}'}"
 
 ## These are infranodes
-infranode1.5082.internal openshift_hostname=infranode1.5082.internal  openshift_node_labels="{'env':'infra', 'cluster': '5082'}"
-infranode2.5082.internal openshift_hostname=infranode2.5082.internal  openshift_node_labels="{'env':'infra', 'cluster': '5082'}"
+infranode1.{{ ansible_local.opentlc.guid }}.internal openshift_hostname=infranode1.{{ ansible_local.opentlc.guid }}.internal  openshift_node_labels="{'env':'infra', 'cluster': '{{ ansible_local.opentlc.guid }}'}"
+infranode2.{{ ansible_local.opentlc.guid }}.internal openshift_hostname=infranode2.{{ ansible_local.opentlc.guid }}.internal  openshift_node_labels="{'env':'infra', 'cluster': '{{ ansible_local.opentlc.guid }}'}"
 
 ## These are regular nodes
-node1.5082.internal openshift_hostname=node1.5082.internal  openshift_node_labels="{'env':'app', 'cluster': '5082'}"
-node2.5082.internal openshift_hostname=node2.5082.internal  openshift_node_labels="{'env':'app', 'cluster': '5082'}"
-node3.5082.internal openshift_hostname=node3.5082.internal  openshift_node_labels="{'env':'app', 'cluster': '5082'}"
+node1.{{ ansible_local.opentlc.guid }}.internal openshift_hostname=node1.{{ ansible_local.opentlc.guid }}.internal  openshift_node_labels="{'env':'app', 'cluster': '{{ ansible_local.opentlc.guid }}'}"
+node2.{{ ansible_local.opentlc.guid }}.internal openshift_hostname=node2.{{ ansible_local.opentlc.guid }}.internal  openshift_node_labels="{'env':'app', 'cluster': '{{ ansible_local.opentlc.guid }}'}"
+node3.{{ ansible_local.opentlc.guid }}.internal openshift_hostname=node3.{{ ansible_local.opentlc.guid }}.internal  openshift_node_labels="{'env':'app', 'cluster': '{{ ansible_local.opentlc.guid }}'}"
 
 ## These are CNS nodes
-# support1.5082.internal openshift_hostname=support1.5082.internal  openshift_node_labels="{'env':'glusterfs', 'cluster': '5082'}"
+# support1.{{ ansible_local.opentlc.guid }}.internal openshift_hostname=support1.{{ ansible_local.opentlc.guid }}.internal  openshift_node_labels="{'env':'glusterfs', 'cluster': '{{ ansible_local.opentlc.guid }}'}"
 
 [nfs]
-support1.5082.internal openshift_hostname=support1.5082.internal
+support1.{{ ansible_local.opentlc.guid }}.internal openshift_hostname=support1.{{ ansible_local.opentlc.guid }}.internal
 
 #[glusterfs]
-# support1.5082.internal glusterfs_devices='[ "/dev/xvdd" ]'
+# support1.{{ ansible_local.opentlc.guid }}.internal glusterfs_devices='[ "/dev/xvdd" ]'

@@ -2,6 +2,33 @@
 - hosts: localhost
   become: yes
   tasks:
+  - name: "Create custom fact directory"
+    file:
+      path: "/etc/ansible/facts.d"
+      recurse: yes
+      state: "directory"
+
+  - name: "Insert custom fact file"
+    copy:
+      src: files/opentlc.fact
+      dest: /etc/ansible/facts.d/opentlc.fact
+      mode: 0755
+
+  - name: re-read facts
+    setup:
+      filter: ansible_local
+
+  - name: generate inventory file
+    template:
+      src: opentlc_inventory.j2
+      dest: /etc/ansible/hosts
+      backup: yes
+
+  - name: Refresh inventory to ensure new instances exist in inventory
+    meta: refresh_inventory
+
+- hosts: all
+  tasks:
     - name: "Create custom fact directory"
       file:
         path: "/etc/ansible/facts.d"
