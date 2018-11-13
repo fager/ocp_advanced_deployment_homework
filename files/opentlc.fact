@@ -1,0 +1,9 @@
+#!/bin/bash
+
+GUID=$(hostname | cut -d. -f2)
+
+cat <<EOF
+{
+    "guid" : "$GUID"
+}
+EOF
