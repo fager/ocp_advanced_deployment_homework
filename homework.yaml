@@ -1,7 +1,16 @@
 ---
-- hosts: localhost
+- name: Prepare Bastion host
+  hosts: localhost
   become: yes
   tasks:
+  - name: Install required Packages
+    yum: 
+      name: "{{ item }}"
+      state: present
+    with_items:
+      - atomic-openshift-clients
+      - openshift-ansible
+
   - name: "Create custom fact directory"
     file:
       path: "/etc/ansible/facts.d"
@@ -23,32 +32,90 @@
       src: opentlc_inventory.j2
       dest: /etc/ansible/hosts
       backup: yes
+    notify: refresh incentory
 
-  - name: Refresh inventory to ensure new instances exist in inventory
+  handlers:
+  - name: refresh inventory
     meta: refresh_inventory
 
-- hosts: all
+- name: Add custom fact to all hosts and set environment variable GUID
+  hosts: all
   tasks:
-    - name: "Create custom fact directory"
-      file:
-        path: "/etc/ansible/facts.d"
-        recurse: yes
-        state: "directory"
+  - name: "Create custom fact directory"
+    file:
+      path: "/etc/ansible/facts.d"
+      recurse: yes
+      state: "directory"
 
-    - name: "Insert custom fact file"
-      copy:
-        src: files/opentlc.fact
-        dest: /etc/ansible/facts.d/opentlc.fact
-        mode: 0755
+  - name: "Insert custom fact file"
+    copy:
+      src: files/opentlc.fact
+      dest: /etc/ansible/facts.d/opentlc.fact
+      mode: 0755
 
-    - name: re-read facts
-      setup:
-        filter: ansible_local
+  - name: re-read facts
+    setup:
+      filter: ansible_local
 
-    - name: My GUID 
-      debug: msg="{{ ansible_local.opentlc.guid }}"
+  - name: Install GUID profile on all nodes
+    template:
+      src: "profile-opentlc.sh.j2"
+      dest: "/etc/profile.d/opentlc.sh"
+      mode: 0644
+      
 
-- import_playbook: /usr/share/ansible/openshift-ansible/playbooks/openshift-checks/health.yml
-  vars:
-    openshift_disable_check: diagnostics
+- name: Prepare Docker on all nodes
+  hosts: nodes
+  tasks:
+  - name: Install docker
+    yum:
+      name: docker
+      state: present
+
+  - name: Start docker service
+    service:
+      name: docker
+      state: started
+      enabled: yes
+
+#- name: Check Prerequisites
+#  import_playbook: /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml
+
+#- name: Deploy Cluster
+#  import_playbook: /usr/share/ansible/openshift-ansible/playbooks/deploy_cluster.yml
+
+- name: Prepare NFS Shares
+  hosts: nfs
+  tasks:
+  - name: Create directories
+    file:
+      dest: "/srv/nfs/user-vols2/pv{{ item }}"
+      state: directory
+      owner: nfsnobody
+      group: nfsnobody
+      mode: 0777
+    with_sequence: start=1 end=50
+
+  - name: Add exports
+    lineinfile:
+      path: /etc/exports.d/openshift-uservols2.exports
+#      regexp: '^/srv/nfs/user-vols2/pv{{ item }}'
+      line: '/srv/nfs/user-vols2/pv{{item }} *(rw,root_squash)'
+      create: yes
+      owner: root
+      group: root
+      mode: 0644
+    with_sequence: start=1 end=50
+    notify: restart nfs-server
+
+  handlers:
+  - name: restart nfs-server
+    service:
+      name: nfs-server
+      state: restarted
+
+#- name: Run Openshift health-playbook
+#  import_playbook: /usr/share/ansible/openshift-ansible/playbooks/openshift-checks/health.yml
+#  vars:
+#   openshift_disable_check: diagnostics
 
