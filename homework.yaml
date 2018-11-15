@@ -29,21 +29,6 @@
       dest: /etc/ansible/facts.d/opentlc.fact
       mode: 0755
 
-  - name: Copy group_vars
-    template:
-      src: "{{ item }}"
-      dest: "/etc/ansible/group_vars/"
-    with_fileglob:
-      - templates/group_vars/*
-
-  - name: Copy htpasswd file to ansible directory
-    copy:
-      src: htpasswd.openshift
-      dest: /etc/ansible/htpasswd.openshift
-      owner: root
-      group: root
-      mode: 0600
-
   - name: re-read facts
     setup:
       filter: ansible_local
@@ -54,6 +39,22 @@
       dest: /etc/ansible/hosts
       backup: yes
     notify: refresh inventory
+
+  - name: Copy group_vars
+    template:
+      src: "{{ item }}"
+      dest: "/etc/ansible/group_vars/"
+    with_fileglob:
+      - templates/group_vars/*
+    notify: refresh inventory
+
+  - name: Copy htpasswd file to ansible directory
+    copy:
+      src: htpasswd.openshift
+      dest: /etc/ansible/htpasswd.openshift
+      owner: root
+      group: root
+      mode: 0600
 
   handlers:
   - name: refresh inventory
