@@ -106,6 +106,16 @@
 - name: Deploy Cluster
   import_playbook: /usr/share/ansible/openshift-ansible/playbooks/deploy_cluster.yml
 
+- name: Fetch config file for oc cli
+  hosts: masters[0]
+  tags: faetest
+  tasks:
+  - name: Copy remote admin.kubeconfig to local config 
+    fetch:
+      src: /etc/origin/master/admin.kubeconfig
+      dest: ~/.kube/config
+      flat: yes
+
 - name: Prepare NFS Shares
   hosts: nfs
   tasks:
