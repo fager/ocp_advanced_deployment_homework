@@ -1,5 +1,11 @@
 # OCP Advanced Deployment Homework
 
+## Class informations
+
+| Date | 2018-11-12 - 2018-11-16 |
+| Instructor | Jindřich Káňa  |
+| Location | Frankfurt, Germany |
+
 ## Software versions used for this deployment
 
 ``` bash

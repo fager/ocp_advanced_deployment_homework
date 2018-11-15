@@ -17,11 +17,32 @@
       recurse: yes
       state: "directory"
 
+  - name: "Create group_vars directory"
+    file:
+      path: "/etc/ansible/group_vars"
+      recurse: yes
+      state: "directory"
+
   - name: "Insert custom fact file"
     copy:
       src: files/opentlc.fact
       dest: /etc/ansible/facts.d/opentlc.fact
       mode: 0755
+
+  - name: Copy group_vars
+    template:
+      src: "{{ item }}"
+      dest: "/etc/ansible/group_vars/"
+    with_fileglob:
+      - templates/group_vars/*
+
+  - name: Copy htpasswd file to ansible directory
+    copy:
+      src: htpasswd.openshift
+      dest: /etc/ansible/htpasswd.openshift
+      owner: root
+      group: root
+      mode: 0600
 
   - name: re-read facts
     setup:
@@ -32,7 +53,7 @@
       src: opentlc_inventory.j2
       dest: /etc/ansible/hosts
       backup: yes
-    notify: refresh incentory
+    notify: refresh inventory
 
   handlers:
   - name: refresh inventory
