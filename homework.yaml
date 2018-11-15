@@ -54,7 +54,7 @@
       dest: /etc/ansible/htpasswd.openshift
       owner: root
       group: root
-      mode: 0600
+      mode: 0644
 
   handlers:
   - name: refresh inventory
@@ -100,11 +100,11 @@
       state: started
       enabled: yes
 
-#- name: Check Prerequisites
-#  import_playbook: /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml
+- name: Check Prerequisites
+  import_playbook: /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml
 
-#- name: Deploy Cluster
-#  import_playbook: /usr/share/ansible/openshift-ansible/playbooks/deploy_cluster.yml
+- name: Deploy Cluster
+  import_playbook: /usr/share/ansible/openshift-ansible/playbooks/deploy_cluster.yml
 
 - name: Prepare NFS Shares
   hosts: nfs
